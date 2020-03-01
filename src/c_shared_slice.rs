@@ -25,7 +25,8 @@ use core::slice;
 /// Because this type is primarily intended to help _unsafe_ Rust we should
 /// discuss the precise guarantees offered:
 /// * **Validity Invariants**
-///   * The data layout is a [`NonNull<T>`](core::ptr::NonNull) and then a `usize`.
+///   * The data layout is a [`NonNull<T>`](core::ptr::NonNull) and then a
+///     `usize`.
 /// * **Soundness Invariants**
 ///   * The `NonNull<T>` must point to the start of a valid `&[T]`.
 ///   * The `usize` must be the correct length of that valid `&[T]`.
@@ -36,6 +37,9 @@ use core::slice;
 /// support generic types. However, if you select a particular type for `T` that
 /// is compatible with the C ABI, such as `u8` or `i32`, then that particular
 /// monomorphization of `CSharedSlice` will be C ABI compatible as well.
+///
+/// If you want the pointer value to be nullable, wrap the type in `Option` and
+/// you'll get the null-pointer optimization.
 #[repr(C)]
 pub struct CSharedSlice<'a, T> {
   nn: NonNull<T>,
