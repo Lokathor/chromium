@@ -9,7 +9,7 @@ use core::slice;
 // even by foreign code. It is the responsibility of _the other code_ to ensure
 // that the actual fields are valid for being turned into a slice.
 
-/// A struct for shared "slices" with a stable layout.
+/// A struct for **shared** slices with a stable layout.
 ///
 /// This type is of very little use to purely safe Rust. Instead, the primary
 /// value of this type is that it lets you convert a shared slice, `&[T]`, into

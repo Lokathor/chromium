@@ -10,7 +10,7 @@ use core::slice;
 // even by foreign code. It is the responsibility of _the other code_ to ensure
 // that the actual fields are valid for being turned into a slice.
 
-/// A struct for unique "slices" with a stable layout.
+/// A struct for **unique** slices with a stable layout.
 ///
 /// This type is of very little use to purely safe Rust. Instead, the primary
 /// value of this type is that it lets you convert a unique slice, `&mut [T]`,
@@ -60,7 +60,6 @@ impl<'a, T: Debug> Debug for CUniqueSlice<'a, T> {
   }
 }
 
-/* requires https://github.com/rust-lang/rust/issues/57349
 impl<'a, T> Default for CUniqueSlice<'a, T> {
   /// Defaults to an empty slice.
   ///
@@ -73,7 +72,6 @@ impl<'a, T> Default for CUniqueSlice<'a, T> {
     Self::empty_slice()
   }
 }
-*/
 
 impl<'a, T> Deref for CUniqueSlice<'a, T> {
   type Target = [T];
@@ -108,20 +106,22 @@ impl<'a, T> From<CUniqueSlice<'a, T>> for &'a mut [T] {
   }
 }
 
-/* requires https://github.com/rust-lang/rust/issues/57349
 impl<'a, T> CUniqueSlice<'a, T> {
-  /// Gives an empty slice as a `const` value.
+  /// Gives an empty slice.
+  ///
+  /// This will become `const` once
+  /// [rust-lang/rust#57349](https://github.com/rust-lang/rust/issues/57349)
+  /// happens.
   ///
   /// ```rust
   /// # use chromium::*;
   /// let c_shared: CUniqueSlice<'static, i32> = CUniqueSlice::empty_slice();
   /// assert_eq!(c_shared.len(), 0);
   /// ```
-  pub const fn empty_slice() -> Self {
+  pub fn empty_slice() -> Self {
     let life = PhantomData;
     let len = 0;
     let ptr = core::ptr::NonNull::dangling().as_ptr();
     Self { ptr, len, life }
   }
 }
-*/
