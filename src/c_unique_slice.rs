@@ -12,24 +12,11 @@ use core::slice;
 
 /// A struct for **unique** slices with a stable layout.
 ///
-/// This type is of very little use to purely safe Rust. Instead, the primary
-/// value of this type is that it lets you convert a unique slice, `&mut [T]`,
-/// into a stable layout form. This lets you pass it over the C ABI, for
-/// example.
+/// This is a `repr(C)` variant of `&mut [T]`. If you want a variant of `&[T]`
+/// then you should use [`CSharedSlice`](crate::CSharedSlice) instead.
 ///
-/// This type is **not** intended to _actually_ be sent to actual C code. The
-/// intended use is for Rust to Rust communication over a C ABI. If you actually
-/// use this type with real C code that's cool I suppose, but there could be any
-/// number of additional footguns doing that, which aren't discussed here.
-///
-/// This type has fairly minimal functionality, though there is at least a
-/// `Deref` and `DerefMut` provided. You aren't really intended to store and use
-/// this long term. Usually you just turn your rust slice into a `CUniqueSlice`,
-/// send it over a C ABI function call, and then on the far side that code turns
-/// it immediately back into a normal rust slice.
+/// Rationale for using this type is given in the crate level docs.
 /// 
-/// * If you want to use `&[T]` instead, see [`CSharedSlice`](crate::CSharedSlice)
-///
 /// ## Unsafety
 ///
 /// Because this type is primarily intended to help _unsafe_ Rust we should
@@ -46,6 +33,17 @@ use core::slice;
 /// support generic types. However, if you select a particular type for `T` that
 /// is compatible with the C ABI, such as `u8` or `i32`, then that particular
 /// monomorphization of `CUniqueSlice` will be C ABI compatible as well.
+///
+/// For example, if your element type were `u8` then it would be equivalent to
+/// the following C declaration:
+/// ```c
+/// #include <stdint.h>
+/// // Identical layout to `CUniqueSlice<'a, u8>`
+/// typedef struct {
+///   uint8_t *ptr;
+///   uintptr_t len;
+/// } CSharedSlice_u8;
+/// ```
 #[repr(C)]
 pub struct CUniqueSlice<'a, T> {
   ptr: *mut T,
