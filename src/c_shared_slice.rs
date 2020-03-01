@@ -15,6 +15,11 @@ use core::slice;
 /// value of this type is that it lets you convert a shared slice, `&[T]`, into
 /// a stable layout form. This lets you pass it over the C ABI, for example.
 ///
+/// This type is **not** intended to _actually_ be sent to actual C code. The
+/// intended use is for Rust<->Rust communication over a C ABI. If you actually
+/// use this type with real C code that's cool I suppose, but there could be any
+/// number of additional footguns doing that, which aren't discussed here.
+///
 /// This type has fairly minimal functionality, though there is at least a
 /// `Deref` provided. You aren't really intended to store this in a struct or
 /// anything. Usually you just turn it back into a normal slice with `into` as
