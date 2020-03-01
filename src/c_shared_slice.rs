@@ -16,14 +16,18 @@ use core::slice;
 /// a stable layout form. This lets you pass it over the C ABI, for example.
 ///
 /// This type is **not** intended to _actually_ be sent to actual C code. The
-/// intended use is for Rust<->Rust communication over a C ABI. If you actually
+/// intended use is for Rust to Rust communication over a C ABI. If you actually
 /// use this type with real C code that's cool I suppose, but there could be any
 /// number of additional footguns doing that, which aren't discussed here.
 ///
 /// This type has fairly minimal functionality, though there is at least a
-/// `Deref` provided. You aren't really intended to store this in a struct or
-/// anything. Usually you just turn it back into a normal slice with `into` as
-/// soon as you get it.
+/// `Deref` provided. You aren't really intended to store and use this long
+/// term. Usually you just turn your rust slice into a `CSharedSlice`, send it
+/// over a C ABI function call, and then on the far side that code turns it
+/// immediately back into a normal rust slice.
+///
+/// * If you want to use `&mut [T]` instead, see
+///   [`CUniqueSlice`](crate::CUniqueSlice)
 ///
 /// ## Unsafety
 ///
