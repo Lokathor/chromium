@@ -1,4 +1,4 @@
-use core::{fmt::Debug, marker::PhantomData, ops::Deref, ptr::NonNull};
+use core::{fmt::Debug, marker::PhantomData, ops::Deref};
 // A rare occurrence of Lokathor importing a module!
 use core::slice;
 
@@ -25,10 +25,9 @@ use core::slice;
 /// Because this type is primarily intended to help _unsafe_ Rust we should
 /// discuss the precise guarantees offered:
 /// * **Validity Invariants**
-///   * The data layout is a [`NonNull<T>`](core::ptr::NonNull) and then a
-///     `usize`.
+///   * The data layout is a `*const T` and then a `usize`.
 /// * **Soundness Invariants**
-///   * The `NonNull<T>` must point to the start of a valid `&[T]`.
+///   * The `*const T` must point to the start of a valid `&[T]`.
 ///   * The `usize` must be the correct length of that valid `&[T]`.
 ///   * For as long as the `CSharedSlice` exists the memory in question has a
 ///     shared borrow over it (tracked via `PhantomData`).
@@ -37,12 +36,9 @@ use core::slice;
 /// support generic types. However, if you select a particular type for `T` that
 /// is compatible with the C ABI, such as `u8` or `i32`, then that particular
 /// monomorphization of `CSharedSlice` will be C ABI compatible as well.
-///
-/// If you want the pointer value to be nullable, wrap the type in `Option` and
-/// you'll get the null-pointer optimization.
 #[repr(C)]
 pub struct CSharedSlice<'a, T> {
-  nn: NonNull<T>,
+  ptr: *const T,
   len: usize,
   life: PhantomData<&'a [T]>,
 }
@@ -84,7 +80,7 @@ impl<'a, T> Deref for CSharedSlice<'a, T> {
   #[inline(always)]
   fn deref(&self) -> &[T] {
     // Safety: See note at the top of the module.
-    unsafe { slice::from_raw_parts(self.nn.as_ptr(), self.len) }
+    unsafe { slice::from_raw_parts(self.ptr, self.len) }
   }
 }
 
@@ -92,16 +88,15 @@ impl<'a, T> From<&'a [T]> for CSharedSlice<'a, T> {
   fn from(sli: &'a [T]) -> Self {
     let life = PhantomData;
     let len = sli.len();
-    // Safety: reference addresses must always be non-null already.
-    let nn = unsafe { NonNull::new_unchecked(sli.as_ptr() as *mut T) };
-    Self { nn, len, life }
+    let ptr = sli.as_ptr();
+    Self { ptr, len, life }
   }
 }
 
 impl<'a, T> From<CSharedSlice<'a, T>> for &'a [T] {
   fn from(c_shared: CSharedSlice<'a, T>) -> Self {
     // Safety: See note at the top of the module.
-    unsafe { slice::from_raw_parts(c_shared.nn.as_ptr(), c_shared.len) }
+    unsafe { slice::from_raw_parts(c_shared.ptr, c_shared.len) }
   }
 }
 
@@ -116,7 +111,7 @@ impl<'a, T> CSharedSlice<'a, T> {
   pub const fn empty_slice() -> Self {
     let life = PhantomData;
     let len = 0;
-    let nn = NonNull::dangling();
-    Self { nn, len, life }
+    let ptr = core::ptr::NonNull::dangling().as_ptr();
+    Self { ptr, len, life }
   }
 }
