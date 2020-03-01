@@ -29,11 +29,13 @@ use core::slice;
 ///     shared borrow over it (tracked via `PhantomData`).
 ///
 /// When you use this type with the C ABI, remember that the C ABI **does not**
-/// support generic types. However, if you select a particular type for `T` that
-/// is compatible with the C ABI, such as `u8` or `i32`, then that particular
-/// monomorphization of `CSharedSlice` will be C ABI compatible as well. For
-/// example, if your element type were `u8` then it would be equivalent layout
-/// to the following C declaration:
+/// support generic types or `repr(Rust)` types!
+///
+/// If you select a particular type for `T` that is compatible with the C ABI,
+/// such as `u8` or `i32`, then that particular monomorphization of
+/// `CSharedSlice` will be C ABI compatible as well. For example, if your
+/// element type were `u8` then it would be equivalent layout to the following C
+/// declaration:
 /// ```c
 /// #include <stdint.h>
 /// // Identical layout to `CSharedSlice<'a, u8>`
