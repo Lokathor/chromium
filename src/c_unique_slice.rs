@@ -43,7 +43,7 @@ use core::slice;
 /// typedef struct {
 ///   uint8_t *ptr;
 ///   uintptr_t len;
-/// } CSharedSlice_u8;
+/// } CUniqueSlice_u8;
 /// ```
 #[repr(C)]
 pub struct CUniqueSlice<'a, T> {
