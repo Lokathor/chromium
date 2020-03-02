@@ -49,8 +49,11 @@ use core::slice;
 pub struct CUniqueSlice<'a, T> {
   ptr: *mut T,
   len: usize,
-  life: PhantomData<&'a mut [T]>,
+  life: PhantomData<MutSlice<'a,T>>,
 }
+
+#[repr(transparent)]
+struct MutSlice<'a,T>(&'a mut [T]);
 
 impl<'a, T: Debug> Debug for CUniqueSlice<'a, T> {
   /// Debug prints as a slice would.
@@ -108,19 +111,16 @@ impl<'a, T> From<CUniqueSlice<'a, T>> for &'a mut [T] {
 impl<'a, T> CUniqueSlice<'a, T> {
   /// Gives an empty slice.
   ///
-  /// This will become `const` once
-  /// [rust-lang/rust#57349](https://github.com/rust-lang/rust/issues/57349)
-  /// happens.
-  ///
   /// ```rust
   /// # use chromium::*;
   /// let c_shared: CUniqueSlice<'static, i32> = CUniqueSlice::empty_slice();
   /// assert_eq!(c_shared.len(), 0);
   /// ```
-  pub fn empty_slice() -> Self {
+  pub const fn empty_slice() -> Self {
     let life = PhantomData;
     let len = 0;
     let ptr = core::ptr::NonNull::dangling().as_ptr();
     Self { ptr, len, life }
   }
 }
+
