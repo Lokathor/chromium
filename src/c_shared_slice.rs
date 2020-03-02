@@ -68,7 +68,7 @@ impl<'a, T> Clone for CSharedSlice<'a, T> {
   }
 }
 
-impl<'a, T> Copy for CSharedSlice<'a, T> { }
+impl<'a, T> Copy for CSharedSlice<'a, T> {}
 
 impl<'a, T> Default for CSharedSlice<'a, T> {
   /// Defaults to an empty slice.

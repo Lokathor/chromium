@@ -1,5 +1,8 @@
-use core::{fmt::Debug, marker::PhantomData, ops::Deref};
-use core::ops::DerefMut;
+use core::{
+  fmt::Debug,
+  marker::PhantomData,
+  ops::{Deref, DerefMut},
+};
 // A rare occurrence of Lokathor importing a module!
 use core::slice;
 
@@ -16,7 +19,7 @@ use core::slice;
 /// then you should use [`CSharedSlice`](crate::CSharedSlice) instead.
 ///
 /// Rationale for using this type is given in the crate level docs.
-/// 
+///
 /// ## Unsafety
 ///
 /// Because this type is primarily intended to help _unsafe_ Rust we should
