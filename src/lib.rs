@@ -39,6 +39,7 @@ pub use c_unique_slice::*;
 /// * [Primitive][prim] layout of 64-bits or less.
 ///   * **Examples:** `i8`, `u32`
 /// * Any zero-sized type (ZST).
+///   * **Examples:** `()`
 /// * [`repr(C)`][repr-c] and all fields are also `StableLayout`.
 ///   * **Examples:** Most `libc` and `winapi` types.
 /// * [`repr(transparent)`][repr-transparent] and the non-ZST field is also
