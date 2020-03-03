@@ -45,8 +45,7 @@ pub use c_unique_slice::*;
 ///   * **Examples:** Most `libc` and `winapi` types.
 /// * [`repr(transparent)`][repr-transparent] `struct` or `union` types when the
 ///   non-ZST field is also `StableLayout`.
-///   * **Examples:** [`Wrapping`](core::num::Wrapping) when wrapping a
-///     `StableLayout` type.
+///   * **Examples:** [`Wrapping<T>`](core::num::Wrapping) where `T: StableLayout`.
 /// * Any other layout that is guaranteed by Rust.
 ///   * **Examples:** `&T` and `&mut T` where `T: Sized`.
 ///
