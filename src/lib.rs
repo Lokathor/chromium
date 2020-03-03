@@ -40,19 +40,23 @@ pub use c_unique_slice::*;
 ///   * **Examples:** `i8`, `u32`
 /// * Any zero-sized type (ZST).
 ///   * **Examples:** `()`
-/// * [`repr(C)`][repr-c] and all fields are also `StableLayout`.
-///   * **Examples:** Most `libc` and `winapi` types.
-/// * [`repr(transparent)`][repr-transparent] and the non-ZST field is also
+/// * [`repr(C)`][repr-c] `struct` or `union` types when all fields are also
 ///   `StableLayout`.
+///   * **Examples:** Most `libc` and `winapi` types.
+/// * [`repr(transparent)`][repr-transparent] `struct` or `union` types when the
+///   non-ZST field is also `StableLayout`.
 ///   * **Examples:** [`Wrapping`](core::num::Wrapping) when wrapping a
 ///     `StableLayout` type.
 /// * Any other layout that is guaranteed by Rust.
 ///   * **Examples:** `&T` and `&mut T` where `T: Sized`.
 ///
 /// [type-layout]: https://doc.rust-lang.org/stable/reference/type-layout.html
-/// [prim]: https://doc.rust-lang.org/stable/reference/type-layout.html#primitive-representations
-/// [repr-c]: https://doc.rust-lang.org/stable/reference/type-layout.html#the-c-representation
-/// [repr-transparent]: https://doc.rust-lang.org/stable/reference/type-layout.html#the-transparent-representation
+/// [prim]:
+/// https://doc.rust-lang.org/stable/reference/type-layout.html#primitive-representations
+/// [repr-c]:
+/// https://doc.rust-lang.org/stable/reference/type-layout.html#the-c-representation
+/// [repr-transparent]:
+/// https://doc.rust-lang.org/stable/reference/type-layout.html#the-transparent-representation
 pub unsafe trait StableLayout { }
 
 unsafe impl StableLayout for u8 { }
@@ -60,16 +64,24 @@ unsafe impl StableLayout for u16 { }
 unsafe impl StableLayout for u32 { }
 unsafe impl StableLayout for u64 { }
 unsafe impl StableLayout for usize { }
+
 unsafe impl StableLayout for i8 { }
 unsafe impl StableLayout for i16 { }
 unsafe impl StableLayout for i32 { }
 unsafe impl StableLayout for i64 { }
 unsafe impl StableLayout for isize { }
+
 unsafe impl StableLayout for bool { }
 unsafe impl StableLayout for char { }
 unsafe impl StableLayout for () { }
+
 unsafe impl<T> StableLayout for core::num::Wrapping<T> where T: StableLayout { }
+
 unsafe impl<T> StableLayout for &T where T: Sized { }
-unsafe impl<T> StableLayout for &mut T where T: Sized { }
 unsafe impl<T> StableLayout for Option<&T> where T: Sized { }
+
+unsafe impl<T> StableLayout for &mut T where T: Sized { }
 unsafe impl<T> StableLayout for Option<&mut T> where T: Sized { }
+
+unsafe impl<T> StableLayout for core::ptr::NonNull<T> where T: Sized { }
+unsafe impl<T> StableLayout for Option<core::ptr::NonNull<T>> where T: Sized { }
