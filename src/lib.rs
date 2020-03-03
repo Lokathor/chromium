@@ -36,7 +36,7 @@ pub use c_unique_slice::*;
 ///
 /// ## Safety
 /// The type's [Type Layout][type-layout] must fit one of the following:
-/// * [Primitive][prim] layout of 64-bits or less.
+/// * [Primitive][prim] layout types of 64-bits or less.
 ///   * **Examples:** `i8`, `u32`
 /// * Any zero-sized type (ZST).
 ///   * **Examples:** `()`
