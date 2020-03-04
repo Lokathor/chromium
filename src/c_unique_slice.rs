@@ -117,16 +117,12 @@ impl<'a, T> From<CUniqueSlice<'a, T>> for &'a mut [T] where T: StableLayout {
 impl<'a, T> CUniqueSlice<'a, T> where T: StableLayout {
   /// Gives an empty slice.
   ///
-  /// This will become `const` once
-  /// [rust-lang/rust#57349](https://github.com/rust-lang/rust/issues/57349)
-  /// happens.
-  ///
   /// ```rust
   /// # use chromium::*;
   /// let c_shared: CUniqueSlice<'static, i32> = CUniqueSlice::empty_slice();
   /// assert_eq!(c_shared.len(), 0);
   /// ```
-  pub fn empty_slice() -> Self {
+  pub const fn empty_slice() -> Self {
     let life = PhantomData;
     let len = 0;
     let ptr = core::ptr::NonNull::dangling().as_ptr();
