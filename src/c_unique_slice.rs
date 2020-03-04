@@ -2,9 +2,8 @@ use core::{
   fmt::Debug,
   marker::PhantomData,
   ops::{Deref, DerefMut},
+  slice,
 };
-// A rare occurrence of Lokathor importing a module!
-use core::slice;
 
 use super::StableLayout;
 
@@ -60,6 +59,8 @@ where
   life: PhantomData<&'a mut [T]>,
 }
 
+unsafe impl<'a, T: StableLayout> StableLayout for CUniqueSlice<'a, T> { }
+
 impl<'a, T: Debug> Debug for CUniqueSlice<'a, T>
 where
   T: StableLayout,
@@ -81,6 +82,7 @@ where
   /// let c_shared: CUniqueSlice<'static, i32> = CUniqueSlice::default();
   /// assert_eq!(c_shared.len(), 0);
   /// ```
+  #[inline(always)]
   fn default() -> Self {
     let life = PhantomData;
     let len = 0;
@@ -116,6 +118,7 @@ impl<'a, T> From<&'a mut [T]> for CUniqueSlice<'a, T>
 where
   T: StableLayout,
 {
+  #[inline(always)]
   fn from(sli: &'a mut [T]) -> Self {
     let life = PhantomData;
     let len = sli.len();
@@ -128,26 +131,9 @@ impl<'a, T> From<CUniqueSlice<'a, T>> for &'a mut [T]
 where
   T: StableLayout,
 {
+  #[inline(always)]
   fn from(c_shared: CUniqueSlice<'a, T>) -> Self {
     // Safety: See note at the top of the module.
     unsafe { slice::from_raw_parts_mut(c_shared.ptr, c_shared.len) }
   }
 }
-
-/*
-impl<'a, T> CUniqueSlice<'a, T> where T: StableLayout {
-  /// Gives an empty slice.
-  ///
-  /// ```rust
-  /// # use chromium::*;
-  /// let c_shared: CUniqueSlice<'static, i32> = CUniqueSlice::empty_slice();
-  /// assert_eq!(c_shared.len(), 0);
-  /// ```
-  pub const fn empty_slice() -> Self {
-    let life = PhantomData;
-    let len = 0;
-    let ptr = core::ptr::NonNull::dangling().as_ptr();
-    Self { ptr, len, life }
-  }
-}
-*/

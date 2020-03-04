@@ -28,6 +28,12 @@ pub use c_shared_slice::*;
 mod c_unique_slice;
 pub use c_unique_slice::*;
 
+mod c_shared_str;
+pub use c_shared_str::*;
+
+mod c_unique_str;
+pub use c_unique_str::*;
+
 /// Indicates a type with a layout that is stable across Rust compiler versions.
 ///
 /// ## Safety
@@ -74,7 +80,10 @@ unsafe impl StableLayout for bool {}
 unsafe impl StableLayout for char {}
 unsafe impl StableLayout for () {}
 
-unsafe impl<T> StableLayout for core::marker::PhantomData<T> where T: StableLayout {}
+unsafe impl<T> StableLayout for core::marker::PhantomData<T> where
+  T: StableLayout
+{
+}
 unsafe impl<T> StableLayout for core::num::Wrapping<T> where T: StableLayout {}
 unsafe impl<T> StableLayout for core::mem::ManuallyDrop<T> where T: StableLayout {}
 
@@ -115,9 +124,49 @@ macro_rules! impl_unsafe_marker_for_array {
   }
 }
 impl_unsafe_marker_for_array!(
-  StableLayout, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-  17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 48, 64,
-  96, 128, 256, 512, 1024, 2048, 4096
+  StableLayout,
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24,
+  25,
+  26,
+  27,
+  28,
+  29,
+  30,
+  31,
+  32,
+  48,
+  64,
+  96,
+  128,
+  256,
+  512,
+  1024,
+  2048,
+  4096
 );
 
 #[cfg(target_arch = "x86")]

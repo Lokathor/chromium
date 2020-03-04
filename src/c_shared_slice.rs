@@ -1,6 +1,4 @@
-use core::{fmt::Debug, marker::PhantomData, ops::Deref};
-// A rare occurrence of Lokathor importing a module!
-use core::slice;
+use core::{fmt::Debug, marker::PhantomData, ops::Deref, slice};
 
 use super::StableLayout;
 
@@ -56,6 +54,8 @@ where
   life: PhantomData<&'a [T]>,
 }
 
+unsafe impl<'a, T: StableLayout> StableLayout for CSharedSlice<'a, T> { }
+
 impl<'a, T: Debug> Debug for CSharedSlice<'a, T>
 where
   T: StableLayout,
@@ -92,6 +92,7 @@ where
   /// let c_shared: CSharedSlice<'static, i32> = CSharedSlice::default();
   /// assert_eq!(c_shared.len(), 0);
   /// ```
+  #[inline(always)]
   fn default() -> Self {
     let life = PhantomData;
     let len = 0;
@@ -116,6 +117,7 @@ impl<'a, T> From<&'a [T]> for CSharedSlice<'a, T>
 where
   T: StableLayout,
 {
+  #[inline(always)]
   fn from(sli: &'a [T]) -> Self {
     let life = PhantomData;
     let len = sli.len();
@@ -128,28 +130,9 @@ impl<'a, T> From<CSharedSlice<'a, T>> for &'a [T]
 where
   T: StableLayout,
 {
+  #[inline(always)]
   fn from(c_shared: CSharedSlice<'a, T>) -> Self {
     // Safety: See note at the top of the module.
     unsafe { slice::from_raw_parts(c_shared.ptr, c_shared.len) }
   }
 }
-
-/*
-impl<'a, T> CSharedSlice<'a, T>  where T: StableLayout{
-  /// Gives an empty slice as a `const` value.
-  ///
-  /// Some day this will be `const`
-  ///
-  /// ```rust
-  /// # use chromium::*;
-  /// let c_shared: CSharedSlice<'static, i32> = CSharedSlice::empty_slice();
-  /// assert_eq!(c_shared.len(), 0);
-  /// ```
-  pub fn empty_slice() -> Self {
-    let life = PhantomData;
-    let len = 0;
-    let ptr = core::ptr::NonNull::dangling().as_ptr();
-    Self { ptr, len, life }
-  }
-}
-*/
