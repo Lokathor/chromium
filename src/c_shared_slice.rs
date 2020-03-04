@@ -47,20 +47,29 @@ use super::StableLayout;
 /// } CSharedSlice_u8;
 /// ```
 #[repr(C)]
-pub struct CSharedSlice<'a, T> where T: StableLayout {
+pub struct CSharedSlice<'a, T>
+where
+  T: StableLayout,
+{
   ptr: *const T,
   len: usize,
   life: PhantomData<&'a [T]>,
 }
 
-impl<'a, T: Debug> Debug for CSharedSlice<'a, T>  where T: StableLayout{
+impl<'a, T: Debug> Debug for CSharedSlice<'a, T>
+where
+  T: StableLayout,
+{
   /// Debug prints as a slice would.
   fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
     Debug::fmt(self.deref(), f)
   }
 }
 
-impl<'a, T> Clone for CSharedSlice<'a, T>  where T: StableLayout{
+impl<'a, T> Clone for CSharedSlice<'a, T>
+where
+  T: StableLayout,
+{
   #[inline(always)]
   fn clone(&self) -> Self {
     // Note(Lokathor): We can't derive Clone and Copy or CSharedSlice will only
@@ -72,7 +81,10 @@ impl<'a, T> Clone for CSharedSlice<'a, T>  where T: StableLayout{
 
 impl<'a, T> Copy for CSharedSlice<'a, T> where T: StableLayout {}
 
-impl<'a, T> Default for CSharedSlice<'a, T> where T: StableLayout {
+impl<'a, T> Default for CSharedSlice<'a, T>
+where
+  T: StableLayout,
+{
   /// Defaults to an empty slice.
   ///
   /// ```rust
@@ -88,7 +100,10 @@ impl<'a, T> Default for CSharedSlice<'a, T> where T: StableLayout {
   }
 }
 
-impl<'a, T> Deref for CSharedSlice<'a, T> where T: StableLayout {
+impl<'a, T> Deref for CSharedSlice<'a, T>
+where
+  T: StableLayout,
+{
   type Target = [T];
   #[inline(always)]
   fn deref(&self) -> &[T] {
@@ -97,7 +112,10 @@ impl<'a, T> Deref for CSharedSlice<'a, T> where T: StableLayout {
   }
 }
 
-impl<'a, T> From<&'a [T]> for CSharedSlice<'a, T> where T: StableLayout {
+impl<'a, T> From<&'a [T]> for CSharedSlice<'a, T>
+where
+  T: StableLayout,
+{
   fn from(sli: &'a [T]) -> Self {
     let life = PhantomData;
     let len = sli.len();
@@ -106,7 +124,10 @@ impl<'a, T> From<&'a [T]> for CSharedSlice<'a, T> where T: StableLayout {
   }
 }
 
-impl<'a, T> From<CSharedSlice<'a, T>> for &'a [T]  where T: StableLayout{
+impl<'a, T> From<CSharedSlice<'a, T>> for &'a [T]
+where
+  T: StableLayout,
+{
   fn from(c_shared: CSharedSlice<'a, T>) -> Self {
     // Safety: See note at the top of the module.
     unsafe { slice::from_raw_parts(c_shared.ptr, c_shared.len) }
@@ -116,7 +137,7 @@ impl<'a, T> From<CSharedSlice<'a, T>> for &'a [T]  where T: StableLayout{
 /*
 impl<'a, T> CSharedSlice<'a, T>  where T: StableLayout{
   /// Gives an empty slice as a `const` value.
-  /// 
+  ///
   /// Some day this will be `const`
   ///
   /// ```rust

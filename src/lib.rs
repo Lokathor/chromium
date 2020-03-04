@@ -41,7 +41,8 @@ pub use c_unique_slice::*;
 ///   * **Examples:** Most `libc` and `winapi` types.
 /// * [`repr(transparent)`][repr-transparent] `struct` or `union` types when the
 ///   non-ZST field is also `StableLayout`.
-///   * **Examples:** [`Wrapping<T>`](core::num::Wrapping) where `T: StableLayout`.
+///   * **Examples:** [`Wrapping<T>`](core::num::Wrapping) where `T:
+///     StableLayout`.
 /// * Any other layout that is guaranteed by Rust.
 ///   * **Examples:** `&T` and `&mut T` where `T: Sized`.
 ///
@@ -52,41 +53,41 @@ pub use c_unique_slice::*;
 /// https://doc.rust-lang.org/stable/reference/type-layout.html#the-c-representation
 /// [repr-transparent]:
 /// https://doc.rust-lang.org/stable/reference/type-layout.html#the-transparent-representation
-pub unsafe trait StableLayout { }
+pub unsafe trait StableLayout {}
 
-unsafe impl StableLayout for u8 { }
-unsafe impl StableLayout for u16 { }
-unsafe impl StableLayout for u32 { }
-unsafe impl StableLayout for u64 { }
-unsafe impl StableLayout for usize { }
+unsafe impl StableLayout for u8 {}
+unsafe impl StableLayout for u16 {}
+unsafe impl StableLayout for u32 {}
+unsafe impl StableLayout for u64 {}
+unsafe impl StableLayout for usize {}
 
-unsafe impl StableLayout for i8 { }
-unsafe impl StableLayout for i16 { }
-unsafe impl StableLayout for i32 { }
-unsafe impl StableLayout for i64 { }
-unsafe impl StableLayout for isize { }
+unsafe impl StableLayout for i8 {}
+unsafe impl StableLayout for i16 {}
+unsafe impl StableLayout for i32 {}
+unsafe impl StableLayout for i64 {}
+unsafe impl StableLayout for isize {}
 
-unsafe impl StableLayout for bool { }
-unsafe impl StableLayout for char { }
-unsafe impl StableLayout for () { }
+unsafe impl StableLayout for bool {}
+unsafe impl StableLayout for char {}
+unsafe impl StableLayout for () {}
 
-unsafe impl<T> StableLayout for core::num::Wrapping<T> where T: StableLayout { }
+unsafe impl<T> StableLayout for core::num::Wrapping<T> where T: StableLayout {}
 
 // Note(Lokathor): Technically the pointer itself is stable with just `Sized`,
 // even with if the pointed to data isn't stable. However, it's essentially
 // impossible to utilize the power of StableLayout if the pointed to data isn't
 // stable, so we just require that. If you want to avoid our extra rule here, go
 // make your own crate.
-unsafe impl<T> StableLayout for &T where T: Sized + StableLayout { }
-unsafe impl<T> StableLayout for Option<&T> where T: Sized + StableLayout { }
-unsafe impl<T> StableLayout for &mut T where T: Sized + StableLayout { }
-unsafe impl<T> StableLayout for Option<&mut T> where T: Sized + StableLayout { }
-unsafe impl<T> StableLayout for *const T where T: Sized + StableLayout { }
-unsafe impl<T> StableLayout for *mut T where T: Sized + StableLayout { }
+unsafe impl<T> StableLayout for &T where T: Sized + StableLayout {}
+unsafe impl<T> StableLayout for Option<&T> where T: Sized + StableLayout {}
+unsafe impl<T> StableLayout for &mut T where T: Sized + StableLayout {}
+unsafe impl<T> StableLayout for Option<&mut T> where T: Sized + StableLayout {}
+unsafe impl<T> StableLayout for *const T where T: Sized + StableLayout {}
+unsafe impl<T> StableLayout for *mut T where T: Sized + StableLayout {}
 use core::ptr::NonNull;
-unsafe impl<T> StableLayout for NonNull<T> where T: Sized + StableLayout { }
-unsafe impl<T> StableLayout for Option<NonNull<T>> where T: Sized + StableLayout { }
+unsafe impl<T> StableLayout for NonNull<T> where T: Sized + StableLayout {}
+unsafe impl<T> StableLayout for Option<NonNull<T>> where T: Sized + StableLayout {}
 
 use core::cell::{Cell, UnsafeCell};
-unsafe impl<T> StableLayout for UnsafeCell<T> where T: StableLayout { }
-unsafe impl<T> StableLayout for Cell<T> where T: StableLayout { }
+unsafe impl<T> StableLayout for UnsafeCell<T> where T: StableLayout {}
+unsafe impl<T> StableLayout for Cell<T> where T: StableLayout {}
