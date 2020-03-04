@@ -80,36 +80,49 @@ unsafe impl StableLayout for bool {}
 unsafe impl StableLayout for char {}
 unsafe impl StableLayout for () {}
 
-unsafe impl<T> StableLayout for core::marker::PhantomData<T> where
-  T: StableLayout
-{
-}
-unsafe impl<T> StableLayout for core::num::Wrapping<T> where T: StableLayout {}
-unsafe impl<T> StableLayout for core::mem::ManuallyDrop<T> where T: StableLayout {}
+use core::marker::PhantomData;
+/// `PhantomData` is a zero-sized type and so technically it could be defined as
+/// always being `StableLayout`. However, since `PhantomData` is semantically
+/// supposed to indicate to the world that you want to be treated like you're
+/// holding some sort of `T`, then we will also require that the `T` be a
+/// `StableLayout` type.
+unsafe impl<T> StableLayout for PhantomData<T> where T: StableLayout {}
 
-unsafe impl StableLayout for Option<core::num::NonZeroU8> {}
-unsafe impl StableLayout for Option<core::num::NonZeroU16> {}
-unsafe impl StableLayout for Option<core::num::NonZeroU32> {}
-unsafe impl StableLayout for Option<core::num::NonZeroU64> {}
-unsafe impl StableLayout for Option<core::num::NonZeroUsize> {}
+use core::num::Wrapping;
+unsafe impl<T> StableLayout for Wrapping<T> where T: StableLayout {}
 
-unsafe impl StableLayout for Option<core::num::NonZeroI8> {}
-unsafe impl StableLayout for Option<core::num::NonZeroI16> {}
-unsafe impl StableLayout for Option<core::num::NonZeroI32> {}
-unsafe impl StableLayout for Option<core::num::NonZeroI64> {}
-unsafe impl StableLayout for Option<core::num::NonZeroIsize> {}
+use core::mem::ManuallyDrop;
+unsafe impl<T> StableLayout for ManuallyDrop<T> where T: StableLayout {}
+
+use core::num::{NonZeroU8, NonZeroU16, NonZeroU32, NonZeroU64, NonZeroUsize};
+unsafe impl StableLayout for Option<NonZeroU8> {}
+unsafe impl StableLayout for Option<NonZeroU16> {}
+unsafe impl StableLayout for Option<NonZeroU32> {}
+unsafe impl StableLayout for Option<NonZeroU64> {}
+unsafe impl StableLayout for Option<NonZeroUsize> {}
+
+use core::num::{NonZeroI8, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroIsize};
+unsafe impl StableLayout for Option<NonZeroI8> {}
+unsafe impl StableLayout for Option<NonZeroI16> {}
+unsafe impl StableLayout for Option<NonZeroI32> {}
+unsafe impl StableLayout for Option<NonZeroI64> {}
+unsafe impl StableLayout for Option<NonZeroIsize> {}
 
 // Note(Lokathor): Technically the pointer itself is stable with just `Sized`,
 // even with if the pointed to data isn't stable. However, it's essentially
 // impossible to utilize the power of StableLayout if the pointed to data isn't
 // stable, so we just require that. If you want to avoid our extra rule here, go
 // make your own crate.
+
 unsafe impl<T> StableLayout for &T where T: Sized + StableLayout {}
 unsafe impl<T> StableLayout for Option<&T> where T: Sized + StableLayout {}
+
 unsafe impl<T> StableLayout for &mut T where T: Sized + StableLayout {}
 unsafe impl<T> StableLayout for Option<&mut T> where T: Sized + StableLayout {}
+
 unsafe impl<T> StableLayout for *const T where T: Sized + StableLayout {}
 unsafe impl<T> StableLayout for *mut T where T: Sized + StableLayout {}
+
 use core::ptr::NonNull;
 unsafe impl<T> StableLayout for NonNull<T> where T: Sized + StableLayout {}
 unsafe impl<T> StableLayout for Option<NonNull<T>> where T: Sized + StableLayout {}
@@ -123,50 +136,11 @@ macro_rules! impl_unsafe_marker_for_array {
     $(unsafe impl<T> $marker for [T; $n] where T: $marker {})*
   }
 }
+#[rustfmt::skip]
 impl_unsafe_marker_for_array!(
-  StableLayout,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  10,
-  11,
-  12,
-  13,
-  14,
-  15,
-  16,
-  17,
-  18,
-  19,
-  20,
-  21,
-  22,
-  23,
-  24,
-  25,
-  26,
-  27,
-  28,
-  29,
-  30,
-  31,
-  32,
-  48,
-  64,
-  96,
-  128,
-  256,
-  512,
-  1024,
-  2048,
-  4096
+  StableLayout, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
+  48, 64, 96, 128, 256, 512, 1024, 2048, 4096
 );
 
 #[cfg(target_arch = "x86")]

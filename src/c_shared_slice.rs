@@ -54,7 +54,7 @@ where
   life: PhantomData<&'a [T]>,
 }
 
-unsafe impl<'a, T: StableLayout> StableLayout for CSharedSlice<'a, T> { }
+unsafe impl<'a, T: StableLayout> StableLayout for CSharedSlice<'a, T> {}
 
 impl<'a, T: Debug> Debug for CSharedSlice<'a, T>
 where

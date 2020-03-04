@@ -45,7 +45,7 @@ pub struct CSharedStr<'a> {
   life: PhantomData<&'a str>,
 }
 
-unsafe impl<'a> StableLayout for CSharedStr<'a> { }
+unsafe impl<'a> StableLayout for CSharedStr<'a> {}
 
 impl<'a> Debug for CSharedStr<'a> {
   /// Debug prints as a slice would.
@@ -69,7 +69,7 @@ impl<'a> Default for CSharedStr<'a> {
   /// ```rust
   /// # use chromium::*;
   /// let c_shared: CSharedStr<'static> = CSharedStr::default();
-  /// assert_eq!(c_shared.deref(), "");
+  /// assert_eq!(c_shared.len(), "".len());
   /// ```
   #[inline(always)]
   fn default() -> Self {

@@ -50,7 +50,7 @@ pub struct CUniqueStr<'a> {
   life: PhantomData<&'a mut str>,
 }
 
-unsafe impl<'a> StableLayout for CUniqueStr<'a> { }
+unsafe impl<'a> StableLayout for CUniqueStr<'a> {}
 
 impl<'a> Debug for CUniqueStr<'a> {
   /// Debug prints as a slice would.
@@ -73,8 +73,8 @@ impl<'a> Default for CUniqueStr<'a> {
   ///
   /// ```rust
   /// # use chromium::*;
-  /// let c_shared: CUniqueStr<'static> = CUniqueStr::default();
-  /// assert_eq!(c_shared.deref(), "");
+  /// let c_unique: CUniqueStr<'static> = CUniqueStr::default();
+  /// assert_eq!(c_unique.len(), "".len());
   /// ```
   #[inline(always)]
   fn default() -> Self {
@@ -120,12 +120,12 @@ impl<'a> From<&'a mut str> for CUniqueStr<'a> {
 
 impl<'a> From<CUniqueStr<'a>> for &'a mut str {
   #[inline(always)]
-  fn from(c_shared: CUniqueStr<'a>) -> Self {
+  fn from(c_unique: CUniqueStr<'a>) -> Self {
     // Safety: See note at the top of the module.
     unsafe {
       str::from_utf8_unchecked_mut(slice::from_raw_parts_mut(
-        c_shared.ptr,
-        c_shared.len,
+        c_unique.ptr,
+        c_unique.len,
       ))
     }
   }

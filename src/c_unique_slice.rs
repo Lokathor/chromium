@@ -59,7 +59,7 @@ where
   life: PhantomData<&'a mut [T]>,
 }
 
-unsafe impl<'a, T: StableLayout> StableLayout for CUniqueSlice<'a, T> { }
+unsafe impl<'a, T: StableLayout> StableLayout for CUniqueSlice<'a, T> {}
 
 impl<'a, T: Debug> Debug for CUniqueSlice<'a, T>
 where
@@ -79,8 +79,8 @@ where
   ///
   /// ```rust
   /// # use chromium::*;
-  /// let c_shared: CUniqueSlice<'static, i32> = CUniqueSlice::default();
-  /// assert_eq!(c_shared.len(), 0);
+  /// let c_unique: CUniqueSlice<'static, i32> = CUniqueSlice::default();
+  /// assert_eq!(c_unique.len(), 0);
   /// ```
   #[inline(always)]
   fn default() -> Self {
@@ -132,8 +132,8 @@ where
   T: StableLayout,
 {
   #[inline(always)]
-  fn from(c_shared: CUniqueSlice<'a, T>) -> Self {
+  fn from(c_unique: CUniqueSlice<'a, T>) -> Self {
     // Safety: See note at the top of the module.
-    unsafe { slice::from_raw_parts_mut(c_shared.ptr, c_shared.len) }
+    unsafe { slice::from_raw_parts_mut(c_unique.ptr, c_unique.len) }
   }
 }
