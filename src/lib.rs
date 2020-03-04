@@ -76,11 +76,21 @@ unsafe impl StableLayout for () { }
 
 unsafe impl<T> StableLayout for core::num::Wrapping<T> where T: StableLayout { }
 
-unsafe impl<T> StableLayout for &T where T: Sized { }
-unsafe impl<T> StableLayout for Option<&T> where T: Sized { }
+// Note(Lokathor): Technically the pointer itself is stable with just `Sized`,
+// even with if the pointed to data isn't stable. However, it's essentially
+// impossible to utilize the power of StableLayout if the pointed to data isn't
+// stable, so we just require that. If you want to avoid our extra rule here, go
+// make your own crate.
+unsafe impl<T> StableLayout for &T where T: Sized + StableLayout { }
+unsafe impl<T> StableLayout for Option<&T> where T: Sized + StableLayout { }
+unsafe impl<T> StableLayout for &mut T where T: Sized + StableLayout { }
+unsafe impl<T> StableLayout for Option<&mut T> where T: Sized + StableLayout { }
+unsafe impl<T> StableLayout for *const T where T: Sized + StableLayout { }
+unsafe impl<T> StableLayout for *mut T where T: Sized + StableLayout { }
+use core::ptr::NonNull;
+unsafe impl<T> StableLayout for NonNull<T> where T: Sized + StableLayout { }
+unsafe impl<T> StableLayout for Option<NonNull<T>> where T: Sized + StableLayout { }
 
-unsafe impl<T> StableLayout for &mut T where T: Sized { }
-unsafe impl<T> StableLayout for Option<&mut T> where T: Sized { }
-
-unsafe impl<T> StableLayout for core::ptr::NonNull<T> where T: Sized { }
-unsafe impl<T> StableLayout for Option<core::ptr::NonNull<T>> where T: Sized { }
+use core::cell::{Cell, UnsafeCell};
+unsafe impl<T> StableLayout for UnsafeCell<T> where T: StableLayout { }
+unsafe impl<T> StableLayout for Cell<T> where T: StableLayout { }
