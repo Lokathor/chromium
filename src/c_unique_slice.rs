@@ -6,6 +6,8 @@ use core::{
 // A rare occurrence of Lokathor importing a module!
 use core::slice;
 
+use super::StableLayout;
+
 // General Safety Note: The soundness of the `CUniqueSlice` type is centered
 // around the fact that the fields are all private, and so *safe rust* must
 // construct values of the type from an existing valid slice. However, because
@@ -49,20 +51,20 @@ use core::slice;
 /// } CUniqueSlice_u8;
 /// ```
 #[repr(C)]
-pub struct CUniqueSlice<'a, T> {
+pub struct CUniqueSlice<'a, T> where T: StableLayout {
   ptr: *mut T,
   len: usize,
   life: PhantomData<&'a mut [T]>,
 }
 
-impl<'a, T: Debug> Debug for CUniqueSlice<'a, T> {
+impl<'a, T: Debug> Debug for CUniqueSlice<'a, T> where T: StableLayout {
   /// Debug prints as a slice would.
   fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
     Debug::fmt(self.deref(), f)
   }
 }
 
-impl<'a, T> Default for CUniqueSlice<'a, T> {
+impl<'a, T> Default for CUniqueSlice<'a, T> where T: StableLayout {
   /// Defaults to an empty slice.
   ///
   /// ```rust
@@ -71,11 +73,14 @@ impl<'a, T> Default for CUniqueSlice<'a, T> {
   /// assert_eq!(c_shared.len(), 0);
   /// ```
   fn default() -> Self {
-    Self::empty_slice()
+    let life = PhantomData;
+    let len = 0;
+    let ptr = core::ptr::NonNull::dangling().as_ptr();
+    Self { ptr, len, life }
   }
 }
 
-impl<'a, T> Deref for CUniqueSlice<'a, T> {
+impl<'a, T> Deref for CUniqueSlice<'a, T> where T: StableLayout {
   type Target = [T];
   #[inline(always)]
   fn deref(&self) -> &[T] {
@@ -84,7 +89,7 @@ impl<'a, T> Deref for CUniqueSlice<'a, T> {
   }
 }
 
-impl<'a, T> DerefMut for CUniqueSlice<'a, T> {
+impl<'a, T> DerefMut for CUniqueSlice<'a, T> where T: StableLayout {
   #[inline(always)]
   fn deref_mut(&mut self) -> &mut [T] {
     // Safety: See note at the top of the module.
@@ -92,7 +97,7 @@ impl<'a, T> DerefMut for CUniqueSlice<'a, T> {
   }
 }
 
-impl<'a, T> From<&'a mut [T]> for CUniqueSlice<'a, T> {
+impl<'a, T> From<&'a mut [T]> for CUniqueSlice<'a, T> where T: StableLayout {
   fn from(sli: &'a mut [T]) -> Self {
     let life = PhantomData;
     let len = sli.len();
@@ -101,14 +106,15 @@ impl<'a, T> From<&'a mut [T]> for CUniqueSlice<'a, T> {
   }
 }
 
-impl<'a, T> From<CUniqueSlice<'a, T>> for &'a mut [T] {
+impl<'a, T> From<CUniqueSlice<'a, T>> for &'a mut [T] where T: StableLayout {
   fn from(c_shared: CUniqueSlice<'a, T>) -> Self {
     // Safety: See note at the top of the module.
     unsafe { slice::from_raw_parts_mut(c_shared.ptr, c_shared.len) }
   }
 }
 
-impl<'a, T> CUniqueSlice<'a, T> {
+/*
+impl<'a, T> CUniqueSlice<'a, T> where T: StableLayout {
   /// Gives an empty slice.
   ///
   /// This will become `const` once
@@ -127,3 +133,4 @@ impl<'a, T> CUniqueSlice<'a, T> {
     Self { ptr, len, life }
   }
 }
+*/

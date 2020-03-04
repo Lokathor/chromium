@@ -21,10 +21,6 @@
 //! `Deref` and so on are provided as appropriate, but for any serious usage
 //! you're expected to just change the value back into the Rust form and use the
 //! "real" form of the data.
-//!
-//! **Currently supported:**
-//! * Shared slices, `&[T]`, when `T` has a C-compatible layout.
-//! * Unique slices, `&mut [T]`, when `T` has a C-compatible layout.
 
 mod c_shared_slice;
 pub use c_shared_slice::*;
