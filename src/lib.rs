@@ -67,11 +67,28 @@ unsafe impl StableLayout for i32 {}
 unsafe impl StableLayout for i64 {}
 unsafe impl StableLayout for isize {}
 
+unsafe impl StableLayout for f32 {}
+unsafe impl StableLayout for f64 {}
+
 unsafe impl StableLayout for bool {}
 unsafe impl StableLayout for char {}
 unsafe impl StableLayout for () {}
 
+unsafe impl<T> StableLayout for core::marker::PhantomData<T> where T: StableLayout {}
 unsafe impl<T> StableLayout for core::num::Wrapping<T> where T: StableLayout {}
+unsafe impl<T> StableLayout for core::mem::ManuallyDrop<T> where T: StableLayout {}
+
+unsafe impl StableLayout for Option<core::num::NonZeroU8> {}
+unsafe impl StableLayout for Option<core::num::NonZeroU16> {}
+unsafe impl StableLayout for Option<core::num::NonZeroU32> {}
+unsafe impl StableLayout for Option<core::num::NonZeroU64> {}
+unsafe impl StableLayout for Option<core::num::NonZeroUsize> {}
+
+unsafe impl StableLayout for Option<core::num::NonZeroI8> {}
+unsafe impl StableLayout for Option<core::num::NonZeroI16> {}
+unsafe impl StableLayout for Option<core::num::NonZeroI32> {}
+unsafe impl StableLayout for Option<core::num::NonZeroI64> {}
+unsafe impl StableLayout for Option<core::num::NonZeroIsize> {}
 
 // Note(Lokathor): Technically the pointer itself is stable with just `Sized`,
 // even with if the pointed to data isn't stable. However, it's essentially
@@ -91,3 +108,44 @@ unsafe impl<T> StableLayout for Option<NonNull<T>> where T: Sized + StableLayout
 use core::cell::{Cell, UnsafeCell};
 unsafe impl<T> StableLayout for UnsafeCell<T> where T: StableLayout {}
 unsafe impl<T> StableLayout for Cell<T> where T: StableLayout {}
+
+macro_rules! impl_unsafe_marker_for_array {
+  ( $marker:ident , $( $n:expr ),* ) => {
+    $(unsafe impl<T> $marker for [T; $n] where T: $marker {})*
+  }
+}
+impl_unsafe_marker_for_array!(
+  StableLayout, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+  17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 48, 64,
+  96, 128, 256, 512, 1024, 2048, 4096
+);
+
+#[cfg(target_arch = "x86")]
+use core::arch::x86;
+#[cfg(target_arch = "x86")]
+unsafe impl StableLayout for x86::__m128i {}
+#[cfg(target_arch = "x86")]
+unsafe impl StableLayout for x86::__m128 {}
+#[cfg(target_arch = "x86")]
+unsafe impl StableLayout for x86::__m128d {}
+#[cfg(target_arch = "x86")]
+unsafe impl StableLayout for x86::__m256i {}
+#[cfg(target_arch = "x86")]
+unsafe impl StableLayout for x86::__m256 {}
+#[cfg(target_arch = "x86")]
+unsafe impl StableLayout for x86::__m256d {}
+
+#[cfg(target_arch = "x86_64")]
+use core::arch::x86_64;
+#[cfg(target_arch = "x86_64")]
+unsafe impl StableLayout for x86_64::__m128i {}
+#[cfg(target_arch = "x86_64")]
+unsafe impl StableLayout for x86_64::__m128 {}
+#[cfg(target_arch = "x86_64")]
+unsafe impl StableLayout for x86_64::__m128d {}
+#[cfg(target_arch = "x86_64")]
+unsafe impl StableLayout for x86_64::__m256i {}
+#[cfg(target_arch = "x86_64")]
+unsafe impl StableLayout for x86_64::__m256 {}
+#[cfg(target_arch = "x86_64")]
+unsafe impl StableLayout for x86_64::__m256d {}
