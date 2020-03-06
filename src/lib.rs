@@ -114,6 +114,10 @@ unsafe impl StableLayout for Option<NonZeroIsize> {}
 // stable, so we just require that. If you want to avoid our extra rule here, go
 // make your own crate.
 
+// Note(danielhenrymantilla): Technically the `Sized` isn't required here, since
+// `Sized` is "on by default", and we'd use `?Sized` if we wanted to turn it
+// off, but it's nice to be extra explicit about our expectations.
+
 unsafe impl<T> StableLayout for &T where T: Sized + StableLayout {}
 unsafe impl<T> StableLayout for Option<&T> where T: Sized + StableLayout {}
 
