@@ -11,5 +11,12 @@ jobs:
       run: cargo --version && rustc --version
     - name: Build
       run: cargo build --verbose
-    - name: Run tests
+    - name: Run standard tests
       run: cargo test --verbose
+    - name: Run miri tests
+      run:
+        - rustup component add miri
+        - cargo miri setup
+        - cargo miri test --verbose --no-default-features
+        - cargo miri test --verbose
+        - cargo miri test --verbose --all-features
