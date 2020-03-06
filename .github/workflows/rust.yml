@@ -9,11 +9,11 @@ jobs:
     - uses: actions/checkout@v2
     - name: Display Versions
       run: cargo --version && rustc --version
-    - name: Build
+    - name: Stable Build
       run: cargo build --verbose
-    - name: Run standard tests
+    - name: Stable Tests
       run: cargo test --verbose
-    - name: Run miri tests
+    - name: Nightly Miri Tests
       run: |
         rustup default nightly
         rustup component add miri
