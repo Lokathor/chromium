@@ -22,17 +22,17 @@
 //! you're expected to just change the value back into the Rust form and use the
 //! "real" form of the data.
 
-mod c_shared_slice;
-pub use c_shared_slice::*;
+mod shared_slice;
+pub use shared_slice::*;
 
-mod c_unique_slice;
-pub use c_unique_slice::*;
+mod unique_slice;
+pub use unique_slice::*;
 
-mod c_shared_str;
-pub use c_shared_str::*;
+mod shared_str;
+pub use shared_str::*;
 
-mod c_unique_str;
-pub use c_unique_str::*;
+mod unique_str;
+pub use unique_str::*;
 
 /// Indicates a type with a layout that is stable across Rust compiler versions.
 ///

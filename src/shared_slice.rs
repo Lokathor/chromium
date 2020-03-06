@@ -2,7 +2,7 @@ use core::{fmt::Debug, marker::PhantomData, ops::Deref, slice};
 
 use super::StableLayout;
 
-// General Safety Note: The soundness of the `CSharedSlice` type is centered
+// General Safety Note: The soundness of the `SharedSlice` type is centered
 // around the fact that the fields are all private, and so *safe rust* must
 // construct values of the type from an existing valid slice. However, because
 // the type is `repr(C)` it can of course be constructed with unsafe rust, or
@@ -12,7 +12,7 @@ use super::StableLayout;
 /// A struct for **shared** slices with a stable layout.
 ///
 /// This is a `repr(C)` variant of `&[T]`. If you want a variant of `&mut [T]`
-/// then you should use [`CUniqueSlice`](crate::CUniqueSlice) instead.
+/// then you should use [`UniqueSlice`](crate::UniqueSlice) instead.
 ///
 /// Rationale for using this type is given in the crate level docs.
 ///
@@ -25,7 +25,7 @@ use super::StableLayout;
 /// * **Soundness Invariants**
 ///   * The `*const T` must point to the start of a valid `&[T]`.
 ///   * The `usize` must be the correct length of that valid `&[T]`.
-///   * For as long as the `CSharedSlice` exists the memory in question has a
+///   * For as long as the `SharedSlice` exists the memory in question has a
 ///     shared borrow over it (tracked via `PhantomData`).
 ///
 /// When you use this type with the C ABI, remember that the C ABI **does not**
@@ -33,19 +33,19 @@ use super::StableLayout;
 ///
 /// If you select a particular type for `T` that is compatible with the C ABI,
 /// such as `u8` or `i32`, then that particular monomorphization of
-/// `CSharedSlice` will be C ABI compatible as well. For example, if your
+/// `SharedSlice` will be C ABI compatible as well. For example, if your
 /// element type were `u8` then it would be equivalent layout to the following C
 /// declaration:
 /// ```c
 /// #include <stdint.h>
-/// // Identical layout to `CSharedSlice<'a, u8>`
+/// // Identical layout to `SharedSlice<'a, u8>`
 /// typedef struct {
 ///   uint8_t const *ptr;
 ///   uintptr_t len;
-/// } CSharedSlice_u8;
+/// } SharedSlice_u8;
 /// ```
 #[repr(C)]
-pub struct CSharedSlice<'a, T>
+pub struct SharedSlice<'a, T>
 where
   T: StableLayout,
 {
@@ -54,9 +54,9 @@ where
   life: PhantomData<&'a [T]>,
 }
 
-unsafe impl<'a, T: StableLayout> StableLayout for CSharedSlice<'a, T> {}
+unsafe impl<'a, T: StableLayout> StableLayout for SharedSlice<'a, T> {}
 
-impl<'a, T: Debug> Debug for CSharedSlice<'a, T>
+impl<'a, T: Debug> Debug for SharedSlice<'a, T>
 where
   T: StableLayout,
 {
@@ -66,22 +66,22 @@ where
   }
 }
 
-impl<'a, T> Clone for CSharedSlice<'a, T>
+impl<'a, T> Clone for SharedSlice<'a, T>
 where
   T: StableLayout,
 {
   #[inline(always)]
   fn clone(&self) -> Self {
-    // Note(Lokathor): We can't derive Clone and Copy or CSharedSlice will only
-    // be Clone and Copy when T is clone and Copy. However, CSharedSlice is
+    // Note(Lokathor): We can't derive Clone and Copy or SharedSlice will only
+    // be Clone and Copy when T is clone and Copy. However, SharedSlice is
     // actually a *slice of* T, so it is always Clone and Copy even if T is not.
     *self
   }
 }
 
-impl<'a, T> Copy for CSharedSlice<'a, T> where T: StableLayout {}
+impl<'a, T> Copy for SharedSlice<'a, T> where T: StableLayout {}
 
-impl<'a, T> Default for CSharedSlice<'a, T>
+impl<'a, T> Default for SharedSlice<'a, T>
 where
   T: StableLayout,
 {
@@ -89,7 +89,7 @@ where
   ///
   /// ```rust
   /// # use chromium::*;
-  /// let c_shared: CSharedSlice<'static, i32> = CSharedSlice::default();
+  /// let c_shared: SharedSlice<'static, i32> = SharedSlice::default();
   /// assert_eq!(c_shared.len(), 0);
   /// ```
   #[inline(always)]
@@ -101,7 +101,7 @@ where
   }
 }
 
-impl<'a, T> Deref for CSharedSlice<'a, T>
+impl<'a, T> Deref for SharedSlice<'a, T>
 where
   T: StableLayout,
 {
@@ -113,7 +113,7 @@ where
   }
 }
 
-impl<'a, T> From<&'a [T]> for CSharedSlice<'a, T>
+impl<'a, T> From<&'a [T]> for SharedSlice<'a, T>
 where
   T: StableLayout,
 {
@@ -126,12 +126,12 @@ where
   }
 }
 
-impl<'a, T> From<CSharedSlice<'a, T>> for &'a [T]
+impl<'a, T> From<SharedSlice<'a, T>> for &'a [T]
 where
   T: StableLayout,
 {
   #[inline(always)]
-  fn from(c_shared: CSharedSlice<'a, T>) -> Self {
+  fn from(c_shared: SharedSlice<'a, T>) -> Self {
     // Safety: See note at the top of the module.
     unsafe { slice::from_raw_parts(c_shared.ptr, c_shared.len) }
   }

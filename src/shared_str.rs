@@ -2,7 +2,7 @@ use core::{fmt::Debug, marker::PhantomData, ops::Deref, slice, str};
 
 use super::StableLayout;
 
-// General Safety Note: The soundness of the `CSharedStr` type is centered
+// General Safety Note: The soundness of the `SharedStr` type is centered
 // around the fact that the fields are all private, and so *safe rust* must
 // construct values of the type from an existing valid slice. However, because
 // the type is `repr(C)` it can of course be constructed with unsafe rust, or
@@ -12,7 +12,7 @@ use super::StableLayout;
 /// A struct for **shared** `str` views with a stable layout.
 ///
 /// This is a `repr(C)` variant of `&str`. If you want a variant of `&mut str`
-/// then you should use [`CUniqueStr`](crate::CUniqueStr) instead.
+/// then you should use [`UniqueStr`](crate::UniqueStr) instead.
 ///
 /// Rationale for using this type is given in the crate level docs.
 ///
@@ -25,50 +25,50 @@ use super::StableLayout;
 /// * **Soundness Invariants**
 ///   * The `*const u8` must point to the start of a valid `&str`.
 ///   * The `usize` must be the correct length of that valid `&str`.
-///   * For as long as the `CSharedStr` exists the memory in question has a
+///   * For as long as the `SharedStr` exists the memory in question has a
 ///     shared borrow over it (tracked via `PhantomData`).
 ///   * The memory must contain value UTF-8 data.
 ///
 /// This type matches up with the following C layout:
 /// ```c
 /// #include <stdint.h>
-/// // Identical layout to `CSharedStr<'a>`
+/// // Identical layout to `SharedStr<'a>`
 /// typedef struct {
 ///   uint8_t const *ptr;
 ///   uintptr_t len;
-/// } CSharedStr;
+/// } SharedStr;
 /// ```
 #[repr(C)]
-pub struct CSharedStr<'a> {
+pub struct SharedStr<'a> {
   ptr: *const u8,
   len: usize,
   life: PhantomData<&'a str>,
 }
 
-unsafe impl<'a> StableLayout for CSharedStr<'a> {}
+unsafe impl<'a> StableLayout for SharedStr<'a> {}
 
-impl<'a> Debug for CSharedStr<'a> {
+impl<'a> Debug for SharedStr<'a> {
   /// Debug prints as a slice would.
   fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
     Debug::fmt(self.deref(), f)
   }
 }
 
-impl<'a> Clone for CSharedStr<'a> {
+impl<'a> Clone for SharedStr<'a> {
   #[inline(always)]
   fn clone(&self) -> Self {
     *self
   }
 }
 
-impl<'a> Copy for CSharedStr<'a> {}
+impl<'a> Copy for SharedStr<'a> {}
 
-impl<'a> Default for CSharedStr<'a> {
+impl<'a> Default for SharedStr<'a> {
   /// Defaults to an empty string.
   ///
   /// ```rust
   /// # use chromium::*;
-  /// let c_shared: CSharedStr<'static> = CSharedStr::default();
+  /// let c_shared: SharedStr<'static> = SharedStr::default();
   /// assert_eq!(c_shared.len(), "".len());
   /// ```
   #[inline(always)]
@@ -80,7 +80,7 @@ impl<'a> Default for CSharedStr<'a> {
   }
 }
 
-impl<'a> Deref for CSharedStr<'a> {
+impl<'a> Deref for SharedStr<'a> {
   type Target = str;
   #[inline(always)]
   fn deref(&self) -> &str {
@@ -91,7 +91,7 @@ impl<'a> Deref for CSharedStr<'a> {
   }
 }
 
-impl<'a> From<&'a str> for CSharedStr<'a> {
+impl<'a> From<&'a str> for SharedStr<'a> {
   #[inline(always)]
   fn from(s: &'a str) -> Self {
     let life = PhantomData;
@@ -101,9 +101,9 @@ impl<'a> From<&'a str> for CSharedStr<'a> {
   }
 }
 
-impl<'a> From<CSharedStr<'a>> for &'a str {
+impl<'a> From<SharedStr<'a>> for &'a str {
   #[inline(always)]
-  fn from(c_shared: CSharedStr<'a>) -> Self {
+  fn from(c_shared: SharedStr<'a>) -> Self {
     // Safety: See note at the top of the module.
     unsafe {
       str::from_utf8_unchecked(slice::from_raw_parts(

@@ -7,7 +7,7 @@ use core::{
 
 use super::StableLayout;
 
-// General Safety Note: The soundness of the `CUniqueStr` type is centered
+// General Safety Note: The soundness of the `UniqueStr` type is centered
 // around the fact that the fields are all private, and so *safe rust* must
 // construct values of the type from an existing valid slice. However, because
 // the type is `repr(C)` it can of course be constructed with unsafe rust, or
@@ -17,7 +17,7 @@ use super::StableLayout;
 /// A struct for **unique** `str` views with a stable layout.
 ///
 /// This is a `repr(C)` variant of `&mut str`. If you want a variant of `&str`
-/// then you should use [`CUniqueStr`](crate::CUniqueStr) instead.
+/// then you should use [`UniqueStr`](crate::UniqueStr) instead.
 ///
 /// Rationale for using this type is given in the crate level docs.
 ///
@@ -30,50 +30,50 @@ use super::StableLayout;
 /// * **Soundness Invariants**
 ///   * The `*mut u8` must point to the start of a valid `&mut str`.
 ///   * The `usize` must be the correct length of that valid `&mut str`.
-///   * For as long as the `CUniqueStr` exists the memory in question has a
+///   * For as long as the `UniqueStr` exists the memory in question has a
 ///     unique borrow over it (tracked via `PhantomData`).
 ///   * The memory must contain value UTF-8 data.
 ///
 /// This type matches up with the following C layout:
 /// ```c
 /// #include <stdint.h>
-/// // Identical layout to `CUniqueStr<'a>`
+/// // Identical layout to `UniqueStr<'a>`
 /// typedef struct {
 ///   uint8_t *ptr;
 ///   uintptr_t len;
-/// } CUniqueStr;
+/// } UniqueStr;
 /// ```
 #[repr(C)]
-pub struct CUniqueStr<'a> {
+pub struct UniqueStr<'a> {
   ptr: *mut u8,
   len: usize,
   life: PhantomData<&'a mut str>,
 }
 
-unsafe impl<'a> StableLayout for CUniqueStr<'a> {}
+unsafe impl<'a> StableLayout for UniqueStr<'a> {}
 
-impl<'a> Debug for CUniqueStr<'a> {
+impl<'a> Debug for UniqueStr<'a> {
   /// Debug prints as a slice would.
   fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
     Debug::fmt(self.deref(), f)
   }
 }
 
-impl<'a> Clone for CUniqueStr<'a> {
+impl<'a> Clone for UniqueStr<'a> {
   #[inline(always)]
   fn clone(&self) -> Self {
     *self
   }
 }
 
-impl<'a> Copy for CUniqueStr<'a> {}
+impl<'a> Copy for UniqueStr<'a> {}
 
-impl<'a> Default for CUniqueStr<'a> {
+impl<'a> Default for UniqueStr<'a> {
   /// Defaults to an empty string.
   ///
   /// ```rust
   /// # use chromium::*;
-  /// let c_unique: CUniqueStr<'static> = CUniqueStr::default();
+  /// let c_unique: UniqueStr<'static> = UniqueStr::default();
   /// assert_eq!(c_unique.len(), "".len());
   /// ```
   #[inline(always)]
@@ -85,7 +85,7 @@ impl<'a> Default for CUniqueStr<'a> {
   }
 }
 
-impl<'a> Deref for CUniqueStr<'a> {
+impl<'a> Deref for UniqueStr<'a> {
   type Target = str;
   #[inline(always)]
   fn deref(&self) -> &str {
@@ -96,7 +96,7 @@ impl<'a> Deref for CUniqueStr<'a> {
   }
 }
 
-impl<'a> DerefMut for CUniqueStr<'a> {
+impl<'a> DerefMut for UniqueStr<'a> {
   #[inline(always)]
   fn deref_mut(&mut self) -> &mut str {
     // Safety: See note at the top of the module.
@@ -108,7 +108,7 @@ impl<'a> DerefMut for CUniqueStr<'a> {
   }
 }
 
-impl<'a> From<&'a mut str> for CUniqueStr<'a> {
+impl<'a> From<&'a mut str> for UniqueStr<'a> {
   #[inline(always)]
   fn from(s: &'a mut str) -> Self {
     let life = PhantomData;
@@ -118,9 +118,9 @@ impl<'a> From<&'a mut str> for CUniqueStr<'a> {
   }
 }
 
-impl<'a> From<CUniqueStr<'a>> for &'a mut str {
+impl<'a> From<UniqueStr<'a>> for &'a mut str {
   #[inline(always)]
-  fn from(c_unique: CUniqueStr<'a>) -> Self {
+  fn from(c_unique: UniqueStr<'a>) -> Self {
     // Safety: See note at the top of the module.
     unsafe {
       str::from_utf8_unchecked_mut(slice::from_raw_parts_mut(
