@@ -1,6 +1,6 @@
-use core::{fmt::Debug, marker::PhantomData, ops::Deref};
-// A rare occurrence of Lokathor importing a module!
-use core::slice;
+use core::{fmt::Debug, marker::PhantomData, ops::Deref, slice};
+
+use super::StableLayout;
 
 // General Safety Note: The soundness of the `CSharedSlice` type is centered
 // around the fact that the fields are all private, and so *safe rust* must
@@ -45,20 +45,31 @@ use core::slice;
 /// } CSharedSlice_u8;
 /// ```
 #[repr(C)]
-pub struct CSharedSlice<'a, T> {
+pub struct CSharedSlice<'a, T>
+where
+  T: StableLayout,
+{
   ptr: *const T,
   len: usize,
   life: PhantomData<&'a [T]>,
 }
 
-impl<'a, T: Debug> Debug for CSharedSlice<'a, T> {
+unsafe impl<'a, T: StableLayout> StableLayout for CSharedSlice<'a, T> {}
+
+impl<'a, T: Debug> Debug for CSharedSlice<'a, T>
+where
+  T: StableLayout,
+{
   /// Debug prints as a slice would.
   fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
     Debug::fmt(self.deref(), f)
   }
 }
 
-impl<'a, T> Clone for CSharedSlice<'a, T> {
+impl<'a, T> Clone for CSharedSlice<'a, T>
+where
+  T: StableLayout,
+{
   #[inline(always)]
   fn clone(&self) -> Self {
     // Note(Lokathor): We can't derive Clone and Copy or CSharedSlice will only
@@ -68,9 +79,12 @@ impl<'a, T> Clone for CSharedSlice<'a, T> {
   }
 }
 
-impl<'a, T> Copy for CSharedSlice<'a, T> {}
+impl<'a, T> Copy for CSharedSlice<'a, T> where T: StableLayout {}
 
-impl<'a, T> Default for CSharedSlice<'a, T> {
+impl<'a, T> Default for CSharedSlice<'a, T>
+where
+  T: StableLayout,
+{
   /// Defaults to an empty slice.
   ///
   /// ```rust
@@ -78,12 +92,19 @@ impl<'a, T> Default for CSharedSlice<'a, T> {
   /// let c_shared: CSharedSlice<'static, i32> = CSharedSlice::default();
   /// assert_eq!(c_shared.len(), 0);
   /// ```
+  #[inline(always)]
   fn default() -> Self {
-    Self::empty_slice()
+    let life = PhantomData;
+    let len = 0;
+    let ptr = core::ptr::NonNull::dangling().as_ptr();
+    Self { ptr, len, life }
   }
 }
 
-impl<'a, T> Deref for CSharedSlice<'a, T> {
+impl<'a, T> Deref for CSharedSlice<'a, T>
+where
+  T: StableLayout,
+{
   type Target = [T];
   #[inline(always)]
   fn deref(&self) -> &[T] {
@@ -92,7 +113,11 @@ impl<'a, T> Deref for CSharedSlice<'a, T> {
   }
 }
 
-impl<'a, T> From<&'a [T]> for CSharedSlice<'a, T> {
+impl<'a, T> From<&'a [T]> for CSharedSlice<'a, T>
+where
+  T: StableLayout,
+{
+  #[inline(always)]
   fn from(sli: &'a [T]) -> Self {
     let life = PhantomData;
     let len = sli.len();
@@ -101,25 +126,13 @@ impl<'a, T> From<&'a [T]> for CSharedSlice<'a, T> {
   }
 }
 
-impl<'a, T> From<CSharedSlice<'a, T>> for &'a [T] {
+impl<'a, T> From<CSharedSlice<'a, T>> for &'a [T]
+where
+  T: StableLayout,
+{
+  #[inline(always)]
   fn from(c_shared: CSharedSlice<'a, T>) -> Self {
     // Safety: See note at the top of the module.
     unsafe { slice::from_raw_parts(c_shared.ptr, c_shared.len) }
-  }
-}
-
-impl<'a, T> CSharedSlice<'a, T> {
-  /// Gives an empty slice as a `const` value.
-  ///
-  /// ```rust
-  /// # use chromium::*;
-  /// let c_shared: CSharedSlice<'static, i32> = CSharedSlice::empty_slice();
-  /// assert_eq!(c_shared.len(), 0);
-  /// ```
-  pub const fn empty_slice() -> Self {
-    let life = PhantomData;
-    let len = 0;
-    let ptr = core::ptr::NonNull::dangling().as_ptr();
-    Self { ptr, len, life }
   }
 }
