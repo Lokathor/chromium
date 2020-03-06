@@ -14,8 +14,9 @@ jobs:
     - name: Run standard tests
       run: cargo test --verbose
     - name: Run miri tests
-      - run: rustup component add miri
-      - run: cargo miri setup
-      - run: cargo miri test --verbose --no-default-features
-      - run: cargo miri test --verbose
-      - run: cargo miri test --verbose --all-features
+      - run: |
+        rustup component add miri
+        cargo miri setup
+        cargo miri test --verbose --no-default-features
+        cargo miri test --verbose
+        cargo miri test --verbose --all-features
