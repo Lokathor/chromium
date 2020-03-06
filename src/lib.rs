@@ -52,6 +52,11 @@ pub use unique_str::*;
 /// * Any other layout that is guaranteed by Rust.
 ///   * **Examples:** `&T` and `&mut T` where `T: Sized`.
 ///
+/// Specifically there are some things that this type **does not** attempt to
+/// guarantee. `StableLayout` types _can_ have:
+/// * Uninitialized bytes, such as padding bytes.
+/// * Invalid bit patterns, such as `bool` and `char`.
+///
 /// [type-layout]: https://doc.rust-lang.org/stable/reference/type-layout.html
 /// [prim]:
 /// https://doc.rust-lang.org/stable/reference/type-layout.html#primitive-representations
@@ -95,6 +100,11 @@ use core::mem::ManuallyDrop;
 unsafe impl<T> StableLayout for ManuallyDrop<T> where T: StableLayout {}
 
 use core::num::{NonZeroU8, NonZeroU16, NonZeroU32, NonZeroU64, NonZeroUsize};
+unsafe impl StableLayout for NonZeroU8 {}
+unsafe impl StableLayout for NonZeroU16 {}
+unsafe impl StableLayout for NonZeroU32 {}
+unsafe impl StableLayout for NonZeroU64 {}
+unsafe impl StableLayout for NonZeroUsize {}
 unsafe impl StableLayout for Option<NonZeroU8> {}
 unsafe impl StableLayout for Option<NonZeroU16> {}
 unsafe impl StableLayout for Option<NonZeroU32> {}
@@ -102,6 +112,11 @@ unsafe impl StableLayout for Option<NonZeroU64> {}
 unsafe impl StableLayout for Option<NonZeroUsize> {}
 
 use core::num::{NonZeroI8, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroIsize};
+unsafe impl StableLayout for NonZeroI8 {}
+unsafe impl StableLayout for NonZeroI16 {}
+unsafe impl StableLayout for NonZeroI32 {}
+unsafe impl StableLayout for NonZeroI64 {}
+unsafe impl StableLayout for NonZeroIsize {}
 unsafe impl StableLayout for Option<NonZeroI8> {}
 unsafe impl StableLayout for Option<NonZeroI16> {}
 unsafe impl StableLayout for Option<NonZeroI32> {}
