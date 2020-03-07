@@ -21,6 +21,10 @@
 //! `Deref` and so on are provided as appropriate, but for any serious usage
 //! you're expected to just change the value back into the Rust form and use the
 //! "real" form of the data.
+//! 
+//! ## Features
+//! 
+//! * `alloc` enables support for `Vec`, `String`, and `Box`.
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
@@ -162,6 +166,13 @@ unsafe impl<T> StableLayout for Option<NonNull<T>> where T: Sized + StableLayout
 use core::cell::{Cell, UnsafeCell};
 unsafe impl<T> StableLayout for UnsafeCell<T> where T: StableLayout {}
 unsafe impl<T> StableLayout for Cell<T> where T: StableLayout {}
+
+#[cfg(feature = "alloc")]
+use alloc::boxed::Box;
+#[cfg(feature = "alloc")]
+unsafe impl<T> StableLayout for Box<T> where T: Sized + StableLayout {}
+#[cfg(feature = "alloc")]
+unsafe impl<T> StableLayout for Option<Box<T>> where T: Sized + StableLayout {}
 
 macro_rules! impl_unsafe_marker_for_array {
   ( $marker:ident , $( $n:expr ),* ) => {
