@@ -73,8 +73,8 @@ impl<'a> Default for UniqueStr<'a> {
   ///
   /// ```rust
   /// # use chromium::*;
-  /// let c_unique: UniqueStr<'static> = UniqueStr::default();
-  /// assert_eq!(c_unique.len(), "".len());
+  /// let unique: UniqueStr<'static> = UniqueStr::default();
+  /// assert_eq!(unique.len(), "".len());
   /// ```
   #[inline(always)]
   fn default() -> Self {
@@ -120,12 +120,11 @@ impl<'a> From<&'a mut str> for UniqueStr<'a> {
 
 impl<'a> From<UniqueStr<'a>> for &'a mut str {
   #[inline(always)]
-  fn from(c_unique: UniqueStr<'a>) -> Self {
+  fn from(unique: UniqueStr<'a>) -> Self {
     // Safety: See note at the top of the module.
     unsafe {
       str::from_utf8_unchecked_mut(slice::from_raw_parts_mut(
-        c_unique.ptr,
-        c_unique.len,
+        unique.ptr, unique.len,
       ))
     }
   }

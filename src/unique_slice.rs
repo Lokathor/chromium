@@ -38,9 +38,10 @@ use super::StableLayout;
 ///
 /// If you select a particular type for `T` that is compatible with the C ABI,
 /// such as `u8` or `i32`, then that particular monomorphization of
-/// `SharedSlice` will be C ABI compatible as well. For example, if your
+/// `UniqueSlice` will be C ABI compatible as well. For example, if your
 /// element type were `u8` then it would be equivalent layout to the following C
 /// declaration:
+/// 
 /// ```c
 /// #include <stdint.h>
 /// // Identical layout to `UniqueSlice<'a, u8>`
@@ -79,8 +80,8 @@ where
   ///
   /// ```rust
   /// # use chromium::*;
-  /// let c_unique: UniqueSlice<'static, i32> = UniqueSlice::default();
-  /// assert_eq!(c_unique.len(), 0);
+  /// let unique: UniqueSlice<'static, i32> = UniqueSlice::default();
+  /// assert_eq!(unique.len(), 0);
   /// ```
   #[inline(always)]
   fn default() -> Self {
@@ -132,8 +133,8 @@ where
   T: StableLayout,
 {
   #[inline(always)]
-  fn from(c_unique: UniqueSlice<'a, T>) -> Self {
+  fn from(unique: UniqueSlice<'a, T>) -> Self {
     // Safety: See note at the top of the module.
-    unsafe { slice::from_raw_parts_mut(c_unique.ptr, c_unique.len) }
+    unsafe { slice::from_raw_parts_mut(unique.ptr, unique.len) }
   }
 }

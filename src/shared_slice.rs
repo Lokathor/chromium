@@ -89,8 +89,8 @@ where
   ///
   /// ```rust
   /// # use chromium::*;
-  /// let c_shared: SharedSlice<'static, i32> = SharedSlice::default();
-  /// assert_eq!(c_shared.len(), 0);
+  /// let shared: SharedSlice<'static, i32> = SharedSlice::default();
+  /// assert_eq!(shared.len(), 0);
   /// ```
   #[inline(always)]
   fn default() -> Self {
@@ -131,8 +131,8 @@ where
   T: StableLayout,
 {
   #[inline(always)]
-  fn from(c_shared: SharedSlice<'a, T>) -> Self {
+  fn from(shared: SharedSlice<'a, T>) -> Self {
     // Safety: See note at the top of the module.
-    unsafe { slice::from_raw_parts(c_shared.ptr, c_shared.len) }
+    unsafe { slice::from_raw_parts(shared.ptr, shared.len) }
   }
 }

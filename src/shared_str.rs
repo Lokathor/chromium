@@ -68,8 +68,8 @@ impl<'a> Default for SharedStr<'a> {
   ///
   /// ```rust
   /// # use chromium::*;
-  /// let c_shared: SharedStr<'static> = SharedStr::default();
-  /// assert_eq!(c_shared.len(), "".len());
+  /// let shared: SharedStr<'static> = SharedStr::default();
+  /// assert_eq!(shared.len(), "".len());
   /// ```
   #[inline(always)]
   fn default() -> Self {
@@ -103,13 +103,10 @@ impl<'a> From<&'a str> for SharedStr<'a> {
 
 impl<'a> From<SharedStr<'a>> for &'a str {
   #[inline(always)]
-  fn from(c_shared: SharedStr<'a>) -> Self {
+  fn from(shared: SharedStr<'a>) -> Self {
     // Safety: See note at the top of the module.
     unsafe {
-      str::from_utf8_unchecked(slice::from_raw_parts(
-        c_shared.ptr,
-        c_shared.len,
-      ))
+      str::from_utf8_unchecked(slice::from_raw_parts(shared.ptr, shared.len))
     }
   }
 }
