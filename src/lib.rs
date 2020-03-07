@@ -25,7 +25,7 @@
 //! ## Features
 //!
 //! * `unsafe_alloc` enables support for `Vec`, `String`, and `Box`.
-//!   * Note that in this case you **must not** allocations between two
+//!   * Note that in this case you **must not** transfer allocations between two
 //!     different global allocators.
 //!   * As of 2020-03-06 it _happens to be the case_ that the default global
 //!     allocators for Windows / Mac / Linux are process wide allocators. If you
