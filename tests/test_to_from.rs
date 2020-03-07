@@ -40,3 +40,23 @@ fn test_UniqueStr_to_from() {
   let back_as_a_str: &mut str = s.into();
   assert_eq!(back_as_a_str, "hello");
 }
+
+#[test]
+#[cfg(feature = "unsafe_alloc")]
+fn test_StableVec_to_from() {
+  let vec = vec![1, 2, 3];
+  let stable_vec = StableVec::from(vec);
+  assert_eq!(stable_vec.deref(), &[1, 2, 3]);
+  let back_as_a_vec: Vec<i32> = stable_vec.into();
+  assert_eq!(back_as_a_vec, vec![1, 2, 3]);
+}
+
+#[test]
+#[cfg(feature = "unsafe_alloc")]
+fn test_StableString_to_from() {
+  let s = String::from("hello");
+  let stable_string = StableString::from(s);
+  assert_eq!(stable_string.deref(), "hello");
+  let back_as_a_string: String = stable_string.into();
+  assert_eq!(back_as_a_string, String::from("hello"));
+}
