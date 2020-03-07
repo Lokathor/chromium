@@ -22,6 +22,9 @@
 //! you're expected to just change the value back into the Rust form and use the
 //! "real" form of the data.
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
 mod shared_slice;
 pub use shared_slice::*;
 
@@ -33,6 +36,16 @@ pub use shared_str::*;
 
 mod unique_str;
 pub use unique_str::*;
+
+#[cfg(feature = "alloc")]
+mod stable_vec;
+#[cfg(feature = "alloc")]
+pub use stable_vec::*;
+
+#[cfg(feature = "alloc")]
+mod stable_string;
+#[cfg(feature = "alloc")]
+pub use stable_string::*;
 
 /// Indicates a type with a layout that is stable across Rust compiler versions.
 ///
@@ -99,7 +112,7 @@ unsafe impl<T> StableLayout for Wrapping<T> where T: StableLayout {}
 use core::mem::ManuallyDrop;
 unsafe impl<T> StableLayout for ManuallyDrop<T> where T: StableLayout {}
 
-use core::num::{NonZeroU8, NonZeroU16, NonZeroU32, NonZeroU64, NonZeroUsize};
+use core::num::{NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU8, NonZeroUsize};
 unsafe impl StableLayout for NonZeroU8 {}
 unsafe impl StableLayout for NonZeroU16 {}
 unsafe impl StableLayout for NonZeroU32 {}
@@ -111,7 +124,7 @@ unsafe impl StableLayout for Option<NonZeroU32> {}
 unsafe impl StableLayout for Option<NonZeroU64> {}
 unsafe impl StableLayout for Option<NonZeroUsize> {}
 
-use core::num::{NonZeroI8, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroIsize};
+use core::num::{NonZeroI16, NonZeroI32, NonZeroI64, NonZeroI8, NonZeroIsize};
 unsafe impl StableLayout for NonZeroI8 {}
 unsafe impl StableLayout for NonZeroI16 {}
 unsafe impl StableLayout for NonZeroI32 {}
