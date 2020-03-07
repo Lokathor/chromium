@@ -24,16 +24,17 @@
 //!
 //! ## Features
 //!
-//! * `alloc` enables support for `Vec`, `String`, and `Box`.
+//! * `unsafe_alloc` enables support for `Vec`, `String`, and `Box`.
 //!   * Note that in this case you **must not** allocations between two
 //!     different global allocators.
 //!   * As of 2020-03-06 it _happens to be the case_ that the default global
 //!     allocators for Windows / Mac / Linux are process wide allocators. If you
 //!     change the global allocator things can break. If the rust standard
 //!     library changes their global allocator things can break.
-//!   * This is a _brittle_ feature, not to be used lightly.
+//!   * This is a _brittle_ feature, not to be used lightly. That's why it says
+//!     "unsafe" right in the feature name.
 
-#[cfg(feature = "alloc")]
+#[cfg(feature = "unsafe_alloc")]
 extern crate alloc;
 
 mod stable_layout;
@@ -51,12 +52,12 @@ pub use shared_str::*;
 mod unique_str;
 pub use unique_str::*;
 
-#[cfg(feature = "alloc")]
+#[cfg(feature = "unsafe_alloc")]
 mod stable_vec;
-#[cfg(feature = "alloc")]
+#[cfg(feature = "unsafe_alloc")]
 pub use stable_vec::*;
 
-#[cfg(feature = "alloc")]
+#[cfg(feature = "unsafe_alloc")]
 mod stable_string;
-#[cfg(feature = "alloc")]
+#[cfg(feature = "unsafe_alloc")]
 pub use stable_string::*;

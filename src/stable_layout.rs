@@ -1,5 +1,4 @@
 
-
 /// Indicates a type with a layout that is stable across Rust compiler versions.
 ///
 /// ## Safety
@@ -116,11 +115,11 @@ use core::cell::{Cell, UnsafeCell};
 unsafe impl<T> StableLayout for UnsafeCell<T> where T: StableLayout {}
 unsafe impl<T> StableLayout for Cell<T> where T: StableLayout {}
 
-#[cfg(feature = "alloc")]
+#[cfg(feature = "unsafe_alloc")]
 use alloc::boxed::Box;
-#[cfg(feature = "alloc")]
+#[cfg(feature = "unsafe_alloc")]
 unsafe impl<T> StableLayout for Box<T> where T: Sized + StableLayout {}
-#[cfg(feature = "alloc")]
+#[cfg(feature = "unsafe_alloc")]
 unsafe impl<T> StableLayout for Option<Box<T>> where T: Sized + StableLayout {}
 
 macro_rules! impl_unsafe_marker_for_array {

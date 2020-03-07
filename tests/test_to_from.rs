@@ -42,7 +42,7 @@ fn test_UniqueStr_to_from() {
 }
 
 #[test]
-#[cfg(feature = "alloc")]
+#[cfg(feature = "unsafe_alloc")]
 fn test_StableVec_to_from() {
   let vec = vec![1, 2, 3];
   let stable_vec = StableVec::from(vec);
@@ -52,7 +52,7 @@ fn test_StableVec_to_from() {
 }
 
 #[test]
-#[cfg(feature = "alloc")]
+#[cfg(feature = "unsafe_alloc")]
 fn test_StableString_to_from() {
   let s = String::from("hello");
   let stable_string = StableString::from(s);

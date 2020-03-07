@@ -1,4 +1,4 @@
-#![cfg(feature = "alloc")]
+#![cfg(feature = "unsafe_alloc")]
 
 use super::StableLayout;
 use alloc::string::String;
