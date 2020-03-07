@@ -12,7 +12,7 @@ default = []
 
 # Enables additional support for types in the `alloc` crate. Usage of this
 # feature is inherently dangerous because a person _could_ think that it's safe
-# to go and move and move memory between global allocators. THAT IS NOT SAFE. If
+# to go and move memory between global allocators. THAT IS NOT SAFE. If
 # you move memory between allocators you can get heap corruption, which is one
 # of the worst forms of UB.
 #
