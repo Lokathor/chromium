@@ -7,4 +7,9 @@ repository = "https://github.com/Lokathor/chromium"
 edition = "2018"
 license = "Zlib"
 
-[dependencies]
+[features]
+default = ["alloc"]
+alloc = []
+
+[package.metadata.docs.rs]
+all-features = true
