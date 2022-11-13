@@ -7,3 +7,6 @@
 Helps add some stability to your metal!
 
 For actual explanations of stuff, see [the crate docs](https://docs.rs/chromium/)
+
+
+# Deprecated: please use `core::ffi` from now on
